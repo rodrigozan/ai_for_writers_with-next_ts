@@ -120,3 +120,191 @@ A análise de requisitos é uma etapa crítica no desenvolvimento de qualquer ap
     - A aplicação deve rastrear estatísticas de uso, como o tempo gasto em projetos e a frequência de uso da API da OpenAI.
 
 Essa análise de requisitos é fundamental para garantir que a aplicação atenda às necessidades dos escritores de literatura de fantasia, oferecendo uma plataforma eficiente para planejar, criar e compartilhar suas histórias, bem como acessar recursos da API da OpenAI para aprimorar sua escrita.
+
+## Arquitetura de Software
+
+Para projetar a arquitetura do software que utiliza Next.js com TypeScript e um banco de dados MySQL, considerando os requisitos definidos, é fundamental criar uma estrutura de banco de dados que acomode as informações de perfil de usuário, preferências literárias, projetos e conexões com outros escritores. Aqui está uma visão geral da estrutura de banco de dados:
+
+### Tabelas do Banco de Dados:
+
+1. **Tabela de Usuários:**
+   - Armazena informações pessoais dos usuários, como nome, e-mail, senha (criptografada) e informações de contato.
+
+2. **Tabela de Perfis de Usuário:**
+   - Contém campos para informações adicionais do perfil do usuário, como descrição, foto de perfil e conquistas como escritor.
+
+3. **Tabela de Preferências Literárias:**
+   - Registra as preferências literárias do usuário, como gêneros de fantasia preferidos e autores favoritos.
+
+4. **Tabela de Livros:**
+   - Permite aos usuários listar os livros que escreveram ou estão em andamento, com detalhes como título, sinopse e data de publicação.
+
+5. **Tabela de Worldbuildings:**
+   - Armazena informações sobre os mundos imaginários criados pelos escritores, incluindo detalhes geográficos, históricos e culturais.
+
+6. **Tabela de Personagens:**
+   - Registra informações sobre personagens, como nome, idade, gênero, descrição física e relacionamentos com outros personagens.
+
+7. **Tabela de Plots:**
+   - Permite que os escritores planejem enredos, capítulos e eventos-chave em suas histórias.
+
+8. **Tabela de Conexões:**
+   - Mantém o controle das conexões entre escritores na plataforma, permitindo seguir e ser seguido.
+
+### Relacionamentos do Banco de Dados:
+
+- A tabela de Usuários se relaciona com a tabela de Perfis de Usuário através de uma chave estrangeira, associando cada perfil a um usuário.
+- A tabela de Usuários também se relaciona com as tabelas de Preferências Literárias, Livros, Worldbuildings, Personagens, Plots e Conexões, permitindo que cada usuário adicione, edite e acesse suas informações nessas tabelas.
+- As tabelas de Worldbuildings e Personagens podem estar relacionadas aos Projetos (por exemplo, cada Worldbuilding ou Personagem pode estar associado a um Projeto específico se o escritor desejar).
+
+### API Backend:
+
+- O backend, desenvolvido em Node.js (usando TypeScript), será responsável por fornecer as APIs necessárias para interagir com o banco de dados.
+- As rotas e controladores devem ser implementados para criar, recuperar, atualizar e excluir informações nas tabelas do banco de dados.
+- A integração com a API da OpenAI pode ser implementada no backend para fornecer sugestões e correções de texto durante o planejamento e escrita.
+
+### Frontend Next.js:
+
+- O frontend deve ser construído com Next.js e TypeScript, oferecendo uma experiência de usuário amigável.
+- As páginas e componentes devem ser projetados para permitir que os usuários gerenciem seus perfis, projetos, conexões e outras informações.
+- Integre formulários para entrada de dados do usuário, como informações pessoais, preferências literárias, detalhes de projetos e conexões com outros escritores.
+- Implemente um editor de texto para escrita de cenas e capítulos, com integração da API da OpenAI para assistência.
+
+Essa arquitetura fornece uma base sólida para a aplicação, permitindo aos escritores de literatura de fantasia criar, planejar e compartilhar suas histórias, além de se conectar com outros membros da plataforma. Certifique-se de implementar medidas de segurança adequadas, como autenticação e autorização, para proteger os dados dos usuários.
+
+### Scripts para criação das tabelas:
+
+Aqui estão os scripts para criar as tabelas no MySQL, incluindo as relações entre elas:
+
+```sql
+-- Tabela de Usuários
+CREATE TABLE Usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL,
+    informacoes_contato TEXT
+);
+
+-- Tabela de Perfis de Usuário
+CREATE TABLE PerfisUsuario (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    descricao TEXT,
+    foto_perfil VARCHAR(255),
+    conquistas_escritor TEXT,
+    usuario_id INT,
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id)
+);
+
+-- Tabela de Preferências Literárias
+CREATE TABLE PreferenciasLiterarias (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    generos_preferidos TEXT,
+    autores_favoritos TEXT,
+    livros_favoritos TEXT,
+    usuario_id INT,
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id)
+);
+
+-- Tabela de Series (opcional)
+CREATE TABLE Series (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    descricao TEXT,
+    usuario_id INT,
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id)
+);
+
+-- Tabela de Livros
+CREATE TABLE Livros (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    sinopse TEXT,
+    data_publicacao DATE,
+    serie_id INT, -- Chave estrangeira para Series (opcional)
+    usuario_id INT,
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id),
+    FOREIGN KEY (serie_id) REFERENCES Series(id)
+);
+
+-- Tabela de Capitulos
+CREATE TABLE Capitulos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    numero INT,
+    livro_id INT, -- Chave estrangeira para Livros
+    usuario_id INT,
+    FOREIGN KEY (livro_id) REFERENCES Livros(id),
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id)
+);
+
+-- Tabela de Cenas
+CREATE TABLE Cenas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    descricao TEXT,
+    capitulo_id INT, -- Chave estrangeira para Capitulos
+    usuario_id INT,
+    FOREIGN KEY (capitulo_id) REFERENCES Capitulos(id),
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id)
+);
+
+-- Tabela de Projetos
+CREATE TABLE Projetos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    descricao TEXT,
+    usuario_id INT,
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id)
+);
+
+
+-- Tabela de Worldbuildings
+CREATE TABLE Worldbuildings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    detalhes_geograficos TEXT,
+    detalhes_historicos TEXT,
+    detalhes_culturais TEXT,
+    usuario_id INT,
+    projeto_id INT, -- Se relaciona com projetos
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id),
+    FOREIGN KEY (projeto_id) REFERENCES Projetos(id)
+);
+
+-- Tabela de Personagens
+CREATE TABLE Personagens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    idade INT,
+    genero VARCHAR(255),
+    descricao_fisica TEXT,
+    relacionamentos TEXT,
+    usuario_id INT,
+    projeto_id INT, -- Se relaciona com projetos
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id),
+    FOREIGN KEY (projeto_id) REFERENCES Projetos(id)
+);
+
+-- Tabela de Plots
+CREATE TABLE Plots (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    descricao TEXT,
+    capitulo INT,
+    evento_chave BOOLEAN,
+    usuario_id INT,
+    projeto_id INT, -- Se relaciona com projetos
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id),
+    FOREIGN KEY (projeto_id) REFERENCES Projetos(id)
+);
+
+-- Tabela de Conexões
+CREATE TABLE Conexoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    seguidor_id INT,
+    seguido_id INT,
+    FOREIGN KEY (seguidor_id) REFERENCES Usuarios(id),
+    FOREIGN KEY (seguido_id) REFERENCES Usuarios(id)
+);
+```
+
+Esses scripts criam as tabelas e estabelecem as relações necessárias para atender aos requisitos da aplicação. Certifique-se de ajustar o tamanho dos campos e tipos de dados conforme necessário para suas necessidades específicas. Além disso, é importante implementar as restrições de chave estrangeira (FOREIGN KEY) para manter a integridade dos dados.
