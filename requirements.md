@@ -223,8 +223,10 @@ CREATE TABLE Livros (
     data_publicacao DATE,
     serie_id INT, -- Chave estrangeira para Series (opcional)
     usuario_id INT,
+    projeto_id INT, -- Se relaciona com projetos
+    FOREIGN KEY (serie_id) REFERENCES Series(id),
     FOREIGN KEY (usuario_id) REFERENCES Usuarios(id),
-    FOREIGN KEY (serie_id) REFERENCES Series(id)
+    FOREIGN KEY (projeto_id) REFERENCES Projetos(id)    
 );
 
 -- Tabela de Capitulos
@@ -262,14 +264,25 @@ CREATE TABLE Projetos (
 -- Tabela de Worldbuildings
 CREATE TABLE Worldbuildings (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    detalhes_geograficos TEXT,
-    detalhes_historicos TEXT,
-    detalhes_culturais TEXT,
+    nome_do_mundo VARCHAR(255) NOT NULL,
+    descricao_geral TEXT,
+    criacao_do_mundo TEXT,
+    racas TEXT,
+    cultura_e_sociedade TEXT,
+    historia TEXT,
+    geografia TEXT,
+    idiomas TEXT,
+    magia_e_tecnologia TEXT,
+    criaturas_e_fauna TEXT,
+    lugares_importantes TEXT,
+    personalidades_importantes TEXT,
+    eventos_importantes TEXT,
     usuario_id INT,
-    projeto_id INT, -- Se relaciona com projetos
+    projeto_id INT, 
     FOREIGN KEY (usuario_id) REFERENCES Usuarios(id),
     FOREIGN KEY (projeto_id) REFERENCES Projetos(id)
 );
+
 
 -- Tabela de Personagens
 CREATE TABLE Personagens (
@@ -278,24 +291,54 @@ CREATE TABLE Personagens (
     idade INT,
     genero VARCHAR(255),
     descricao_fisica TEXT,
+    historia_de_fundo TEXT,
+    personalidade TEXT,
+    comportamento_dominante TEXT,
+    objetivos TEXT,
     relacionamentos TEXT,
+    arco_de_personagem TEXT, 
+    habilidades_especiais TEXT,
     usuario_id INT,
     projeto_id INT, -- Se relaciona com projetos
     FOREIGN KEY (usuario_id) REFERENCES Usuarios(id),
+    FOREIGN KEY (personagem_id) REFERENCES Usuarios(id),
     FOREIGN KEY (projeto_id) REFERENCES Projetos(id)
 );
+
 
 -- Tabela de Plots
 CREATE TABLE Plots (
     id INT AUTO_INCREMENT PRIMARY KEY,
     descricao TEXT,
-    capitulo INT,
     evento_chave BOOLEAN,
+    conflito_central TEXT,
+    arcos_de_personagem TEXT,
+    subplot TEXT,
+    locais_significativos TEXT,
+    criaturas_e_elementos_fantasticos TEXT,
+    resolucao TEXT,
+    temas_e_mensagens TEXT,
+    cronograma TEXT,
+    simbolismo_e_metforas TEXT,
+    elementos_magicos_ou_fantasticos TEXT,
+    conflitos_secundarios TEXT,
+    ganchos_e_misterios TEXT,
+    estrutura_narrativa TEXT,
+    estilo_de_escrita TEXT,
+    dialogos_e_interacoes TEXT,
+    desenvolvimento_do_mundo_em_livros_sequenciais TEXT,
     usuario_id INT,
-    projeto_id INT, -- Se relaciona com projetos
+    projeto_id INT,
+    personagens_principais_id Int,
+    antagonistas_principais_id Int,
+    worldbuilding_id INt,
     FOREIGN KEY (usuario_id) REFERENCES Usuarios(id),
-    FOREIGN KEY (projeto_id) REFERENCES Projetos(id)
+    FOREIGN KEY (projeto_id) REFERENCES Projetos(id),
+    FOREIGN KEY (personagens_principais_id) REFERENCES Personagens(id),
+    FOREIGN KEY (antagonistas_principais_id) REFERENCES Personagens(id),
+    FOREIGN KEY (worldbuilding_id) REFERENCES Worldbuilding(id),
 );
+
 
 -- Tabela de Conexões
 CREATE TABLE Conexoes (
