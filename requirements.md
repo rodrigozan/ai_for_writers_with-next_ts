@@ -260,6 +260,13 @@ CREATE TABLE Projetos (
     FOREIGN KEY (usuario_id) REFERENCES Usuarios(id)
 );
 
+-- Tabela de Associação para Colaboradores
+CREATE TABLE Projeto_Colaboradores (
+    projeto_id INT,
+    colaborador_id INT,
+    FOREIGN KEY (projeto_id) REFERENCES Projetos(id),
+    FOREIGN KEY (colaborador_id) REFERENCES Usuarios(id)
+);
 
 -- Tabela de Worldbuildings
 CREATE TABLE Worldbuildings (
@@ -345,9 +352,27 @@ CREATE TABLE Conexoes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     seguidor_id INT,
     seguido_id INT,
+    conectados Boolean,
     FOREIGN KEY (seguidor_id) REFERENCES Usuarios(id),
     FOREIGN KEY (seguido_id) REFERENCES Usuarios(id)
 );
+
+-- Tabela de DadosOpenAI
+CREATE TABLE DadosOpenAI (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    projeto_id INT,
+    tipo_elemento VARCHAR(255), -- Pode ser "Personagens," "Plot," "Worldbuilding, "Livros".
+    resultado_api TEXT, -- Dados da API da OpenAI
+    personagens_id INT,
+    plot_id INT,
+    personagens_id INT,
+    personagens_id INT,
+    FOREIGN KEY (projeto_id) REFERENCES Projetos(id),
+    -- Adicione chaves estrangeiras para tabelas específicas se necessário
+    FOREIGN KEY (elemento_id) REFERENCES TabelaEspecifica(id)
+);
+
+
 ```
 
 Esses scripts criam as tabelas e estabelecem as relações necessárias para atender aos requisitos da aplicação. Certifique-se de ajustar o tamanho dos campos e tipos de dados conforme necessário para suas necessidades específicas. Além disso, é importante implementar as restrições de chave estrangeira (FOREIGN KEY) para manter a integridade dos dados.
